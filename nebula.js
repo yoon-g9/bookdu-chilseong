@@ -100,10 +100,76 @@
     d.append(el('stop', { offset: '0', 'stop-color': '#fff' }), el('stop', { offset: '.35', 'stop-color': c }), el('stop', { offset: '1', 'stop-color': c, 'stop-opacity': '.75' }));
     defs.append(g, d);
   });
-  let sel = null, first = true; const pos = {};
-  const SPARK = 'M0-1 .22-.22 1 0 .22 .22 0 1-.22 .22-1 0-.22-.22Z';
+  [['core', [['0', '#fff', 1], ['.12', '#e4f0ff', .8], ['.35', '#8fb0ff', .3], ['.7', '#5c78e0', .1], ['1', '#5c78e0', 0]]],
+   ['hal', [['0', '#b8ccff', .38], ['.6', '#9fb8ff', .12], ['1', '#9fb8ff', 0]]],
+   ['halme', [['0', '#FFD66B', .5], ['.6', '#FFD66B', .16], ['1', '#FFD66B', 0]]]].forEach(([id, st]) => {
+    const g = el('radialGradient', { id }); st.forEach(([o, c, a]) => g.append(el('stop', { offset: o, 'stop-color': c, 'stop-opacity': a }))); defs.append(g);
+  });
+  let sel = null, first = true, mode = 'galaxy'; const pos = {};
+
+  // 동그란 별: 부드러운 빛무리 + 구슬 같은 알맹이 + 하이라이트 (밝을수록 바깥 고리)
+  function starDot(s, sr, col, gidx, i) {
+    const body = el('g', { class: 'body' });
+    body.append(el('circle', { r: sr * 2.7, fill: `url(#n${gidx})`, opacity: .55 + s.level * .09 }));
+    if (s.level >= 4) body.append(el('circle', { class: 'tw', r: sr * 1.75, fill: 'none', stroke: col, 'stroke-width': 1, 'stroke-opacity': .6, style: `--td:${(i % 7) * .4}s` }));
+    body.append(el('circle', { r: sr, fill: `url(#d${gidx})`, stroke: '#fff', 'stroke-opacity': .5 + s.level * .08, 'stroke-width': .9 }));
+    body.append(el('circle', { cx: -sr * .32, cy: -sr * .34, r: sr * .3, fill: '#fff', opacity: .85 }));
+    return body;
+  }
 
   function draw() {
+    Object.keys(pos).forEach(k => delete pos[k]);
+    (mode === 'galaxy' ? drawGalaxy : drawGenre)();
+    first = false;
+  }
+
+  /* 우리 반 은하: 학생마다 작은 별자리가 나선팔을 따라 모여요 */
+  function drawGalaxy() {
+    const W = Math.max(280, glass.clientWidth), H = Math.max(360, glass.clientHeight);
+    neb.setAttribute('viewBox', `0 0 ${W} ${H}`); neb.setAttribute('height', H);
+    gCl.replaceChildren(); gLk.replaceChildren();
+    const cx0 = W / 2, cy0 = H / 2 - 4, base = Math.min(W, H * 1.05), Rmax = base * .45, ky = Math.min(1, H / W * 1.05 + .3);
+    const total = STARS.reduce((a, s) => a + s.level, 0);
+    const bg = el('g', { class: 'gx-bg' });
+    // 은하 중심의 빛
+    bg.append(el('ellipse', { cx: cx0, cy: cy0, rx: base * (.3 + Math.min(.08, total / 4000)), ry: base * (.3 + Math.min(.08, total / 4000)) * ky, fill: 'url(#core)', class: 'corepulse' }));
+    // 나선팔 먼지와 점선
+    const R = rng(5), pal = ['#bcd4ff', '#ffd9a8', '#ffb3e6', '#ffffff', '#9ae3ff'];
+    const spiral = (arm, t) => { const a = arm * Math.PI + t * 2.9; const r = Rmax * (.1 + .95 * t); return [cx0 + r * Math.cos(a), cy0 + r * Math.sin(a) * ky]; };
+    for (let k = 0; k < 620; k++) {
+      const arm = k % 2, t = Math.pow(R(), .8), a = arm * Math.PI + t * 2.9 + (R() - .5) * (.7 - t * .35), r = Rmax * (.06 + .98 * t) * (1 + (R() - .5) * .1);
+      bg.append(el('circle', { cx: cx0 + r * Math.cos(a), cy: cy0 + r * Math.sin(a) * ky, r: (R() * 1.2 + .4).toFixed(2), fill: pal[Math.floor(R() * pal.length)], opacity: Math.min(.9, .25 + R() * .55 + (1 - t) * .3).toFixed(2) }));
+    }
+    [0, 1].forEach(arm => { let d = ''; for (let i = 0; i <= 40; i++) { const [x, y] = spiral(arm, i / 40); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); } bg.append(el('path', { d, class: 'arm' })); });
+    gCl.append(bg);
+    // 학생별 별자리
+    const owners = []; STARS.forEach(s => { if (!owners.includes(s.owner)) owners.push(s.owner); });
+    const meIdx = owners.indexOf(myNick); if (meIdx > 0) { owners.splice(meIdx, 1); owners.unshift(myNick); }
+    const N = owners.length, sc = Math.max(.7, Math.min(1.25, base / 640));
+    owners.forEach((nick, oi) => {
+      const list = STARS.filter(s => s.owner === nick), n = list.length, Rr = rng(oi * 53 + 9);
+      const arm = oi % 2, t = ((oi >> 1) + .9) / (Math.ceil(N / 2) + .6), [px, py] = spiral(arm, .12 + .88 * t);
+      const rho = Math.min(base * .085, (9 + n * 1.9) * sc), mine = list.some(s => s.mine);
+      const g = el('g', { class: 'gx' + (first && !reduce ? ' in' : ''), style: `--cd:${(oi * .12).toFixed(2)}s` });
+      const pts = list.map((s, j) => { const rr = rho * Math.sqrt((j + .5) / n), a = j * 2.39996 + oi + (Rr() - .5) * .8; return [px + Math.cos(a) * rr * 1.15, py + Math.sin(a) * rr * .85]; });
+      let d = ''; pts.forEach((p, j) => { if (!j) return; let b = 0, bd = 1e9; for (let q = 0; q < j; q++) { const dd = Math.hypot(p[0] - pts[q][0], p[1] - pts[q][1]); if (dd < bd) { bd = dd; b = q; } } d += `M${pts[b][0].toFixed(1)} ${pts[b][1].toFixed(1)}L${p[0].toFixed(1)} ${p[1].toFixed(1)}`; });
+      g.append(el('circle', { class: 'halo', cx: px, cy: py, r: rho * 2 + 10, fill: mine ? 'url(#halme)' : 'url(#hal)' }), el('path', { d, class: 'cline' }));
+      list.forEach((s, j) => {
+        const [x, y] = pts[j]; pos[s.id] = [x, y]; const gidx = s.genre, col = GENRES[gidx][1], sr = (2 + s.level * .6) * sc;
+        const ns = el('g', { class: 'ns' + (s.id === sel ? ' sel' : ''), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, tabindex: 0, role: 'button', 'data-id': s.id,
+          'aria-label': `${s.owner}의 ${GENRES[gidx][0]} 별, ${s.title}, 밝기 ${s.level}단계${s.mine ? ', 내 별' : ''}` });
+        const body = starDot(s, sr, col, gidx, j); if (s.mine) body.append(el('circle', { class: 'me', r: sr + 3 }));
+        ns.append(body, el('circle', { class: 'ring', r: sr + 6 }), el('circle', { r: 13, fill: 'transparent' }));
+        ns.addEventListener('click', () => pick(s.id)); ns.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(s.id); } });
+        g.append(ns);
+      });
+      const lab = el('text', { class: 'gxlab' + (mine ? ' me' : ''), x: px, y: py + rho * .85 + 16 * sc, 'text-anchor': 'middle' }); lab.textContent = mine ? `${nick} (나)` : nick;
+      g.append(lab); gCl.append(g);
+    });
+    drawLinks();
+  }
+
+  function drawGenre() {
     const W = Math.max(280, glass.clientWidth), Hh = glass.clientHeight;
     const cols = W < 520 ? 2 : W < 900 ? 3 : 4, rows = Math.ceil(12 / cols);
     const cw = W / cols, ch = Math.max(Hh / rows, W < 520 ? 190 : 150), H = ch * rows;
@@ -127,12 +193,7 @@
         const sr = 3.6 + s.level * .9;
         const ns = el('g', { class: 'ns' + (s.id === sel ? ' sel' : '') + (first && !reduce ? ' pop' : ''), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, tabindex: 0, role: 'button', 'data-id': s.id, style: `--sd:${(.5 + gidx * .09 + i * .03).toFixed(2)}s`,
           'aria-label': `${s.owner}의 ${name} 별, ${s.title}, 밝기 ${s.level}단계${s.mine ? ', 내 별' : ''}` });
-        const body = el('g', { class: 'body' });
-        body.append(el('circle', { r: sr * 2.4, fill: col, opacity: .1 + s.level * .05 }));
-        if (s.level >= 4) {
-          const L = sr * (1.9 + (s.level - 4) * .5), sp = el('path', { d: SPARK, fill: col, transform: `scale(${L.toFixed(1)})`, class: 'tw', style: `--td:${(i % 7) * .4}s` }); body.append(sp);
-        }
-        body.append(el('circle', { r: sr, fill: `url(#d${gidx})`, stroke: '#fff', 'stroke-opacity': s.level >= 4 ? .8 : .45, 'stroke-width': .9 }));
+        const body = starDot(s, sr, col, gidx, i);
         if (s.mine) body.append(el('circle', { class: 'me', r: sr + 3.5 }));
         ns.append(body, el('circle', { class: 'ring', r: sr + 7 }));
         if (done[s.id]) { const t = el('text', { class: 'heart', x: sr + 2, y: -sr }); t.textContent = '♥'; ns.append(t); }
@@ -152,7 +213,6 @@
       gCl.append(g);
     });
     drawLinks();
-    first = false;
   }
 
   // 같은 문장 연결선
@@ -227,6 +287,17 @@
   function closePick() { sel = null; $('#pick').classList.remove('open'); $('#pick').setAttribute('aria-hidden', 'true'); document.querySelectorAll('.ns.sel').forEach(n => n.classList.remove('sel')); document.querySelectorAll('.lk.hi').forEach(l => l.classList.remove('hi')); }
   $('#pickClose').addEventListener('click', closePick);
   addEventListener('keydown', e => { if (e.key === 'Escape') closePick(); });
+
+  /* ───────── 탭 · 범례 ───────── */
+  document.querySelectorAll('.tab[data-mode]').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode; first = true; closePick();
+    document.querySelectorAll('.tab[data-mode]').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-selected', String(on)); });
+    $('#scroll').scrollTop = 0; draw();
+  }));
+  (() => {
+    const lg = $('#legend'); GENRES.forEach(([n, c]) => lg.append(h('li', {}, h('i', { style: `background:${c}` }), n)));
+    $('#btnLegend').addEventListener('click', e => { const o = lg.hidden; lg.hidden = !o; e.currentTarget.setAttribute('aria-expanded', String(o)); });
+  })();
 
   /* ───────── 시작 ───────── */
   head(); sizeCanvas(); draw();

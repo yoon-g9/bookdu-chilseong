@@ -17,7 +17,7 @@
   <header class="top">
     <a class="back" href="my.html" aria-label="내 별자리로 돌아가기">‹</a>
     <div class="who">
-      <span class="kicker">우리 반 서가 · 샘플 학급</span>
+      <span class="kicker">샘플 학급</span>
       <strong>학급 성운</strong>
     </div>
     <div class="coin" title="내 별가루">
@@ -29,7 +29,8 @@
   </header>
 
   <div class="tabs" role="tablist" aria-label="묶는 방식">
-    <button role="tab" aria-selected="true" class="tab on" type="button">장르별</button>
+    <button role="tab" aria-selected="true" class="tab on" type="button" data-mode="galaxy">우리 반 은하</button>
+    <button role="tab" aria-selected="false" class="tab" type="button" data-mode="genre">장르별</button>
     <button role="tab" aria-selected="false" class="tab" type="button" disabled title="AI 키워드 연결 후 열려요">주제별 <small>준비 중</small></button>
     <span class="tabnote" id="summary"></span>
   </div>
@@ -56,7 +57,9 @@
 
   <footer class="dock nebdock">
     <a class="chip" href="my.html">내 별자리</a>
-    <p class="legendline"><span class="dimdot" aria-hidden="true"></span> 흐린 구역은 내가 아직 안 읽은 장르예요</p>
+    <button class="chip" id="btnLegend" type="button" aria-expanded="false" aria-controls="legend">별 색 = 장르</button>
+    <p class="legendline">별 하나가 책 한 권이에요</p>
+    <ul class="legend" id="legend" hidden></ul>
   </footer>
 </div>
 

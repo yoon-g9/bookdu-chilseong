@@ -58,7 +58,7 @@ body{overflow-x:hidden}
 .rung{stroke:#E0A646; stroke-width:1.7}
 .drawn{stroke-dasharray:var(--l) var(--l); stroke-dashoffset:var(--l)}
 .drawn.go{stroke-dashoffset:0; transition:stroke-dashoffset var(--t,1.2s) var(--ease) var(--d,0s)}
-.ls,.dst{fill:var(--gold); filter:url(#glow); opacity:0; transform-box:fill-box; transform-origin:center}
+.ls,.dst{fill:var(--gold); stroke:var(--gold); stroke-width:1.5; stroke-linejoin:round; filter:url(#glow); opacity:0; transform-box:fill-box; transform-origin:center}
 .ls.on,.dst.on{animation:spop .8s var(--ease) forwards}
 .dst.on.tw{animation:spop .8s var(--ease) forwards, twk 3.4s ease-in-out .8s infinite}
 @keyframes spop{0%{transform:scale(.1) rotate(-50deg);opacity:0}55%{transform:scale(1.55) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}

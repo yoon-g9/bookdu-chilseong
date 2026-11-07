@@ -198,7 +198,7 @@
       if (b.big) g.append(svg('circle', { class: 'big', r: (Rr * 1.9).toFixed(2), 'stroke-dasharray': '1 1.2' }));
       g.append(svg('circle', { class: 'ring', r: (Rr * 1.7).toFixed(2) }));
       const body = svg('g', { class: 'body' });
-      const st = svg('use', { href: '#star5', fill: col, transform: `scale(${s.toFixed(3)})`, opacity: (.5 + L * .1).toFixed(2) });
+      const st = svg('use', { href: '#star5', fill: col, stroke: col, 'stroke-width': 1.6, 'stroke-linejoin': 'round', transform: `scale(${s.toFixed(3)})`, opacity: (.5 + L * .1).toFixed(2) });
       if (L >= 4) st.setAttribute('style', `filter:drop-shadow(0 0 ${L - 2}px ${col})`);
       body.append(st); g.append(body);
       g.append(svg('circle', { class: 'hit', r: Math.max(22 / upx, Rr * 1.2).toFixed(2) }));
