@@ -1,0 +1,78 @@
+.nebpage .skywrap{padding-top:6px}
+.tabs{display:flex; align-items:center; gap:8px; padding:10px 14px 0; flex-wrap:wrap}
+.tab{min-height:44px; padding:0 18px; border-radius:999px; border:1.5px solid var(--green); background:transparent; color:var(--green); font:800 15px/1 var(--serif); cursor:pointer}
+.tab.on{background:var(--green); color:var(--cream); box-shadow:inset 0 0 0 2px var(--green), inset 0 0 0 3.5px var(--brass-l)}
+.tab:disabled{opacity:.5; cursor:not-allowed; border-style:dashed}
+.tab small{font:600 11px var(--sans); color:var(--brass)}
+.tabnote{margin-left:auto; font-size:13px; color:var(--muted)}
+.tabnote b{color:var(--green); font-family:var(--serif)}
+
+.glass .scroll{position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(221,185,108,.5) transparent}
+#neb{display:block; width:100%}
+
+/* 장르 성운 */
+.cl{transition:opacity .5s}
+.cl.dim{opacity:.42}
+.cl .glow{pointer-events:none}
+.cl text{font-family:var(--sans); font-weight:700; pointer-events:none}
+.cl .pill{fill:rgba(12,20,48,.86)}
+.cl .pilltxt{fill:#F4ECDB; font-size:13px}
+.cl .pilltxt .n{font-weight:500; fill:#d6dcf5}
+.cl .unread{fill:#c9cfe8; font-size:10.5px; font-weight:500}
+.cl.in .glow{animation:glowin 1.4s var(--ease) both; animation-delay:var(--cd,0s)}
+@keyframes glowin{from{opacity:0; transform:scale(.3)}to{opacity:1; transform:none}}
+.glow{transform-box:fill-box; transform-origin:center}
+
+.ns{cursor:pointer; outline:0}
+.ns .body{transform-box:fill-box; transform-origin:center; transition:transform .25s var(--ease)}
+.ns:hover .body,.ns:focus-visible .body,.ns.sel .body{transform:scale(1.5)}
+.ns .ring{fill:none; stroke:var(--cream); stroke-width:1.2; stroke-dasharray:2.5 2.5; opacity:0}
+.ns.sel .ring,.ns:focus-visible .ring{opacity:1}
+.ns .me{fill:none; stroke:#fff; stroke-width:1.4; opacity:.95}
+.ns.pop .body{animation:npop .8s var(--ease) both; animation-delay:var(--sd,0s)}
+@keyframes npop{0%{transform:scale(.1) rotate(-60deg); opacity:0}55%{transform:scale(1.7) rotate(8deg); opacity:1}100%{transform:none}}
+.ns .tw{animation:ntw 3.4s ease-in-out infinite; animation-delay:var(--td,0s)}
+@keyframes ntw{50%{opacity:.7}}
+.ns .heart{fill:#ff7b8a; font-size:11px; pointer-events:none}
+
+.lk{fill:none; stroke:#FFE08A; stroke-width:1.2; stroke-linecap:round; stroke-dasharray:3 4; opacity:.55; filter:drop-shadow(0 0 3px #FFD66B)}
+.lk.hi{opacity:1; stroke-width:1.8}
+.lk.draw{stroke-dasharray:var(--l) var(--l); stroke-dashoffset:var(--l); animation:lkdraw 1.6s var(--ease) forwards; animation-delay:var(--dl,1.4s)}
+@keyframes lkdraw{to{stroke-dashoffset:0}}
+.lk.draw.fin{stroke-dasharray:3 4; stroke-dashoffset:0; animation:none}
+
+/* 랭킹 */
+.rank{position:absolute; right:10px; top:10px; width:min(260px,calc(100% - 20px)); z-index:5; padding:14px; border-radius:12px;
+  background:var(--cream); color:var(--ink); box-shadow:0 14px 34px rgba(0,0,0,.4), inset 0 0 0 1.5px var(--brass)}
+.rank[hidden]{display:none}
+.rank ol{margin:8px 0 6px; padding:0; list-style:none; display:flex; flex-direction:column; gap:4px; counter-reset:r}
+.rank li{counter-increment:r; display:flex; gap:10px; align-items:center; font-weight:700; color:var(--green); min-height:30px}
+.rank li::before{content:counter(r); width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font:800 13px var(--serif); background:var(--green); color:var(--brass-l); flex:none}
+.rank li.me{background:rgba(255,214,107,.3); border-radius:8px; padding-left:4px}
+.rank .mine{font-size:12.5px; color:var(--muted); border-top:1.5px dashed var(--paper-line); padding-top:8px}
+
+/* 하단 */
+.nebdock{justify-content:flex-start; gap:12px}
+.legendline{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted)}
+.dimdot{width:14px; height:14px; border-radius:50%; background:radial-gradient(circle,#8FB4FF,transparent 70%); opacity:.4; flex:none}
+
+/* 별 정보 카드 */
+.pick{position:fixed; z-index:20; left:12px; right:12px; bottom:12px; max-width:440px; margin:0 auto; padding:16px 18px 18px;
+  background:var(--grain), var(--cream); border-radius:6px 6px 14px 14px; border-top:8px solid var(--green);
+  box-shadow:0 18px 48px rgba(19,37,31,.5), inset 0 0 0 1px var(--paper-line); transform:translateY(130%); transition:transform .45s var(--ease); visibility:hidden}
+.pick.open{transform:none; visibility:visible}
+.pick > .chip{position:absolute; right:10px; top:10px; min-height:40px}
+.pk-genre{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--green)}
+.pk-genre i{width:9px; height:20px; border-radius:2px; box-shadow:inset -2px 0 0 rgba(0,0,0,.2)}
+.pk-title{font:900 21px/1.3 var(--serif); color:var(--green); margin:6px 56px 2px 0; word-break:keep-all; overflow-wrap:anywhere}
+.pk-by{font-size:14px; color:var(--muted)}
+.pk-lv{display:flex; gap:5px; margin:10px 0 2px; align-items:center; font-size:13px; color:var(--muted)}
+.pk-lv i{width:11px; height:11px; border-radius:50%; background:#d9ccaa}
+.pk-lv i.on{background:var(--gold); box-shadow:0 0 0 2px var(--brass)}
+.pk-act{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.pk-act button{min-height:44px; padding:0 14px; border-radius:999px; border:1.5px solid var(--green); background:#fffdf6; color:var(--green); font:700 14px var(--sans); cursor:pointer}
+.pk-act button:hover{background:var(--green); color:var(--cream)}
+.pk-act button:disabled{opacity:.45; cursor:not-allowed; background:transparent; color:var(--muted); border-color:var(--paper-line)}
+.pk-note{font-size:12.5px; color:var(--muted); margin-top:8px}
+.pk-link{margin-top:10px; font-size:13.5px; color:#7a5d1e; background:rgba(255,214,107,.28); padding:8px 10px; border-radius:8px; font-weight:600}
+@media (min-width:900px){ .pick{left:24px; right:auto; margin:0; bottom:24px} }

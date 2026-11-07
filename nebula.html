@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학급 성운 · 북두칠성</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="my.css">
+<link rel="stylesheet" href="nebula.css">
+</head>
+<body class="paper nebpage">
+<div class="app">
+  <header class="top">
+    <a class="back" href="my.html" aria-label="내 별자리로 돌아가기">‹</a>
+    <div class="who">
+      <span class="kicker">우리 반 서가 · 샘플 학급</span>
+      <strong>학급 성운</strong>
+    </div>
+    <div class="coin" title="내 별가루">
+      <span class="coin-dot" aria-hidden="true">✦</span>
+      <span class="coin-n" id="dustBal">0</span>
+      <small id="dustToday">오늘 0/30</small>
+    </div>
+    <button class="chip" id="btnRank" type="button" aria-expanded="false" aria-controls="rank">주간 랭킹</button>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="묶는 방식">
+    <button role="tab" aria-selected="true" class="tab on" type="button">장르별</button>
+    <button role="tab" aria-selected="false" class="tab" type="button" disabled title="AI 키워드 연결 후 열려요">주제별 <small>준비 중</small></button>
+    <span class="tabnote" id="summary"></span>
+  </div>
+
+  <main class="skywrap">
+    <div class="frame">
+      <div class="glass" id="glass">
+        <canvas id="bgsky" aria-hidden="true"></canvas>
+        <div class="scroll" id="scroll">
+          <svg id="neb" role="group" aria-label="학급 성운: 장르별로 묶인 학급의 별들">
+            <defs id="defs"></defs>
+            <g id="links"></g>
+            <g id="clusters"></g>
+          </svg>
+        </div>
+        <aside class="rank" id="rank" hidden>
+          <p class="kicker">이번 주 별가루 Top 5</p>
+          <ol id="rankList"></ol>
+          <p class="mine" id="rankMine"></p>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="dock nebdock">
+    <a class="chip" href="my.html">내 별자리</a>
+    <p class="legendline"><span class="dimdot" aria-hidden="true"></span> 흐린 구역은 내가 아직 안 읽은 장르예요</p>
+  </footer>
+</div>
+
+<!-- 별 정보 카드 -->
+<aside class="pick" id="pick" aria-hidden="true" aria-label="별 정보">
+  <button class="chip" id="pickClose" type="button">닫기</button>
+  <div id="pickBody"></div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="nebula.js"></script>
+</body>
+</html>
