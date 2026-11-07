@@ -1,0 +1,63 @@
+/* 북두칠성 공통 테마 — 밤 도서관 카페 */
+:root{
+  --cream:#F4ECDB; --cream2:#EADFC6; --paper-line:#D8C9A6;
+  --green:#1E3932; --green2:#2D5448; --green-d:#13251F;
+  --brass:#B08838; --brass-l:#DDB96C; --wood:#6E4B30; --wood-d:#4A301D;
+  --ink:#2A2118; --muted:#6B6050;
+  --night:#0F1B3D; --night2:#0a1330; --gold:#FFD66B; --line:#8FB4FF;
+  --serif:"Noto Serif KR","Nanum Myeongjo","Batang",serif;
+  --sans:Pretendard,"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .27  0 0 0 0 .16  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:var(--sans); color:var(--ink); background:var(--cream)}
+body.paper{
+  background:
+    radial-gradient(90% 60% at 12% 0%, rgba(255,236,190,.65), transparent 60%),
+    var(--grain), var(--cream);
+}
+h1,h2,h3,.serif{font-family:var(--serif)}
+.kicker{font-size:11.5px; letter-spacing:.2em; color:var(--brass); font-weight:700; text-transform:uppercase}
+
+.chip{min-height:44px; padding:0 16px; border-radius:999px; border:1.5px solid var(--green); color:var(--green);
+  background:transparent; font:700 14px/1 var(--sans); cursor:pointer; transition:background .2s, color .2s}
+.chip:hover{background:var(--green); color:var(--cream)}
+.chip.danger{border-color:#9b3b2e; color:#9b3b2e}.chip.danger:hover{background:#9b3b2e; color:#fff}
+.btn{display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 26px; border-radius:999px;
+  border:0; background:var(--green); color:var(--cream); font:700 16px/1 var(--sans); cursor:pointer; text-decoration:none;
+  box-shadow:inset 0 0 0 2px var(--green), inset 0 0 0 3.5px var(--brass-l);
+  transition:transform .2s var(--ease), background .2s}
+.btn:hover{transform:translateY(-2px); background:var(--green2)}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none}
+.btn.ghost{background:transparent; color:var(--green); box-shadow:inset 0 0 0 1.5px var(--green)}
+.btn.wide{width:100%}
+:is(.btn,.chip,a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid var(--brass); outline-offset:3px}
+
+/* 대화상자 = 종이 카드 */
+dialog{margin:auto; border:0; padding:0; background:transparent; color:var(--ink); max-width:min(440px,calc(100vw - 24px)); width:100%; max-height:92dvh; overflow:auto}
+dialog::backdrop{background:rgba(19,37,31,.62); backdrop-filter:blur(3px)}
+.card{position:relative; display:flex; flex-direction:column; gap:12px; padding:26px 24px 22px;
+  background:var(--grain), var(--cream); border-radius:6px 6px 14px 14px;
+  border-top:10px solid var(--green); box-shadow:0 24px 60px rgba(10,20,15,.45), inset 0 0 0 1px var(--paper-line)}
+.card h2{font-size:26px; font-weight:900; color:var(--green); line-height:1.2}
+.card .hint{font-size:14px; color:var(--muted)}
+.card label,.card legend{display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; color:var(--green)}
+.card legend{padding:0; margin-bottom:6px; flex-direction:row; gap:6px; align-items:baseline}
+.card fieldset{border:0; padding:0}
+.card em{align-self:flex-start; font-style:normal; font-size:11px; color:#fff; background:var(--brass); border-radius:4px; padding:2px 6px; font-weight:700}
+.card small{font-weight:500; color:var(--muted)}
+.card input,.card select,.card textarea{font:500 16px/1.4 var(--sans); color:var(--ink); background:transparent; border:0;
+  border-bottom:2px solid var(--paper-line); border-radius:0; padding:10px 2px; min-height:44px; width:100%}
+.card input:focus,.card select:focus,.card textarea:focus{outline:0; border-bottom-color:var(--green)}
+.card .row{display:flex; gap:10px; justify-content:flex-end; margin-top:6px}
+.miss{min-height:20px; font-size:13.5px; color:#9b3b2e; font-weight:600}
+
+.toast{position:fixed; left:50%; bottom:calc(92px + env(safe-area-inset-bottom)); transform:translate(-50%,20px); z-index:50;
+  background:var(--green-d); color:var(--cream); padding:12px 18px; border-radius:12px; font-weight:600; font-size:15px;
+  box-shadow:0 10px 30px rgba(10,20,15,.35), inset 0 0 0 1px var(--brass); opacity:0; pointer-events:none;
+  transition:all .45s var(--ease); max-width:calc(100vw - 32px); text-align:center}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important; transition-duration:.01ms!important; transition-delay:0s!important}}

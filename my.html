@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 별자리 · 북두칠성</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="my.css">
+</head>
+<body class="paper">
+<div class="app" id="app">
+  <header class="top">
+    <a class="back" href="index.html" aria-label="인트로로 돌아가기">‹</a>
+    <div class="who">
+      <span class="kicker">나의 서가</span>
+      <strong id="nick">내 별자리</strong>
+    </div>
+    <div class="coin" title="별가루: 보유 / 오늘 모은 양 (하루 상한 30)">
+      <span class="coin-dot" aria-hidden="true">✦</span>
+      <span class="coin-n" id="dustBal">0</span>
+      <small id="dustToday">오늘 0/30</small>
+    </div>
+    <button class="chip" id="btnShop" type="button">상점</button>
+  </header>
+
+  <main class="skywrap" id="skywrap">
+    <div class="frame">
+      <div class="glass">
+        <canvas id="bgsky" aria-hidden="true"></canvas>
+        <svg id="sky" viewBox="0 0 100 70" preserveAspectRatio="xMidYMid meet" role="group" aria-label="내 별자리">
+          <defs>
+            <path id="star5" d="M0-4.2 1.2-1.4 4.2-1.1 1.9.9 2.6 3.9 0 2.3-2.6 3.9-1.9.9-4.2-1.1-1.2-1.4Z"/>
+            <g id="grads"></g>
+          </defs>
+          <g id="outline"></g>
+          <g id="books"></g>
+        </svg>
+        <div class="zlabel"><small>12궁</small><strong id="zname">—</strong></div>
+        <div class="mascot" id="mascot">
+          <img src="assets/char/green-wave.webp" alt="">
+          <p id="mascotSay">책을 등록하면 별이 하나 떠올라요</p>
+        </div>
+        <div class="empty" id="empty" hidden>
+          <img src="assets/char/green-wow.webp" alt="">
+          <h2>아직 서가가 비어 있어요</h2>
+          <p>첫 책을 등록해 보세요.<br>제목, 저자, 별점만 있어도 별이 생겨요.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="dock">
+    <button class="chip" id="btnLegend" type="button" aria-expanded="false" aria-controls="legend">책등 색</button>
+    <button class="add" id="btnAdd" type="button"><span aria-hidden="true">＋</span> 책 등록</button>
+    <div class="count">읽은 책 <b id="bookCount">0</b>권<small id="bigCount"></small></div>
+    <ul class="legend" id="legend" hidden></ul>
+  </footer>
+</div>
+
+<!-- 상세: 독서 노트 -->
+<aside class="detail" id="detail" aria-hidden="true" aria-label="책 상세">
+  <div class="dhead"><button class="chip" id="dClose" type="button">닫기</button></div>
+  <div class="dbody" id="dBody"></div>
+</aside>
+
+<!-- 책 등록: 대출 카드 -->
+<dialog id="dlgBook">
+  <form method="dialog" id="formBook" novalidate class="card">
+    <p class="kicker">독서 카드</p>
+    <h2>책 등록</h2>
+    <p class="hint">제목, 저자, 별점만 있어도 별이 생겨요.</p>
+    <label>책 제목 <em>필수</em>
+      <input id="fTitle" name="title" maxlength="80" autocomplete="off" placeholder="예: 어린 왕자">
+    </label>
+    <label>저자 <em>필수</em>
+      <input id="fAuthor" name="author" maxlength="40" autocomplete="off" placeholder="예: 생텍쥐페리">
+    </label>
+    <fieldset>
+      <legend>별점 <em>필수</em></legend>
+      <div class="rate" id="fRate" role="radiogroup" aria-label="별점"></div>
+    </fieldset>
+    <label>장르 <small>(선택 · 비우면 ‘장르 미정’)</small>
+      <select id="fGenre"></select>
+    </label>
+    <p class="miss" id="fMiss" role="status"></p>
+    <div class="row">
+      <button class="btn ghost" type="button" id="fCancel">취소</button>
+      <button class="btn" type="submit" id="fSubmit">별 만들기</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 첫 입장 -->
+<dialog id="dlgOnboard">
+  <form method="dialog" id="formOn" novalidate class="card">
+    <img class="ob-img" src="assets/char/blue-wave.webp" alt="">
+    <p class="kicker">처음 오셨군요</p>
+    <h2>나만의 별자리 만들기</h2>
+    <p class="hint">실명과 학교는 묻지 않아요.</p>
+    <label>닉네임 <em>필수</em>
+      <input id="oNick" maxlength="8" autocomplete="off" placeholder="8자 이내">
+    </label>
+    <fieldset>
+      <legend>생일의 월·일 <small>(선택 · 저장하지 않아요)</small></legend>
+      <div class="bday">
+        <select id="oMon" aria-label="월"></select>
+        <select id="oDay" aria-label="일"></select>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>내 별자리 <small>(생일을 넣으면 자동으로 골라져요)</small></legend>
+      <div class="zgrid" id="oZ" role="radiogroup" aria-label="12궁 별자리"></div>
+    </fieldset>
+    <p class="miss" id="oMiss" role="status"></p>
+    <button class="btn wide" type="submit">서가 열기</button>
+  </form>
+</dialog>
+
+<!-- 상점 -->
+<dialog id="dlgShop">
+  <div class="card">
+    <p class="kicker">별가루 상점</p>
+    <h2>준비 중이에요</h2>
+    <p class="hint">이번 프로토타입에서는 별가루가 독서 활동으로만 모여요.</p>
+    <ul class="shop">
+      <li><b>낮음</b><span>별 모양 · 색상 변경권</span><i>준비 중</i></li>
+      <li><b>중간</b><span>다른 12궁 별자리 · 고양이/구름 모양</span><i>준비 중</i></li>
+      <li><b>높음</b><span>내 별자리 직접 꾸미기</span><i>준비 중</i></li>
+    </ul>
+    <div class="demo">
+      <small>시연 도구</small>
+      <button class="chip" id="btnSample" type="button">샘플 책 채우기</button>
+      <button class="chip danger" id="btnReset" type="button">처음부터</button>
+    </div>
+    <div class="row"><button class="btn" id="shopClose" type="button">닫기</button></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="my.js"></script>
+</body>
+</html>
