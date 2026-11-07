@@ -190,7 +190,7 @@
     S.books.forEach((b, i) => {
       const base = P[i % P.length]; const jit = i >= P.length ? rng(i)() * 2 - 1 : 0;
       const x = base[0] + jit * 2, y = base[1] + jit * 2;
-      const L = levelOf(b), s = f * (.6 + .13 * L) * (b.big ? 1.6 : 1), Rr = 4.2 * s, gx = gi(b.genre), col = GENRES[gx][1];
+      const L = levelOf(b), s = f * (.4 + .085 * L) * (b.big ? 1.6 : 1), Rr = 4.2 * s, gx = gi(b.genre), col = GENRES[gx][1];
       const g = svg('g', { class: 'bk' + (b.id === sel ? ' sel' : '') + (L === 5 ? ' tw5' : '') + (b.id === popId ? ' pop' : '') + (b.id === lvlId ? ' lvl' : ''), transform: `translate(${x.toFixed(2)} ${y.toFixed(2)})`, tabindex: 0, role: 'button', 'data-id': b.id,
         'aria-label': `${b.title}, ${b.author}, 별점 ${b.rating}, 밝기 ${L}단계${b.big ? ', 큰 별' : ''}` });
       g.append(svg('title')); g.firstChild.textContent = `${b.title} · ${GENRES[gx][0]} · 밝기 ${L}단계`;

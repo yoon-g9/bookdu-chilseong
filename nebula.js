@@ -135,7 +135,8 @@
     bg.append(el('ellipse', { cx: cx0, cy: cy0, rx: base * (.3 + Math.min(.08, total / 4000)), ry: base * (.3 + Math.min(.08, total / 4000)) * ky, fill: 'url(#core)', class: 'corepulse' }));
     // 나선팔 먼지와 점선
     const R = rng(5), pal = ['#bcd4ff', '#ffd9a8', '#ffb3e6', '#ffffff', '#9ae3ff'];
-    const spiral = (arm, t) => { const a = arm * Math.PI + t * 2.9; const r = Rmax * (.1 + .95 * t); return [cx0 + r * Math.cos(a), cy0 + r * Math.sin(a) * ky]; };
+    const spiral = (arm, t, th = 0) => { const a = arm * Math.PI + t * 2.9 + th; const r = Rmax * (.1 + .95 * t); return [cx0 + r * Math.cos(a), cy0 + r * Math.sin(a) * ky]; };
+    gal = { cx0, cy0, ky, spiral, bg, orbs: [] };
     for (let k = 0; k < 620; k++) {
       const arm = k % 2, t = Math.pow(R(), .8), a = arm * Math.PI + t * 2.9 + (R() - .5) * (.7 - t * .35), r = Rmax * (.06 + .98 * t) * (1 + (R() - .5) * .1);
       bg.append(el('circle', { cx: cx0 + r * Math.cos(a), cy: cy0 + r * Math.sin(a) * ky, r: (R() * 1.2 + .4).toFixed(2), fill: pal[Math.floor(R() * pal.length)], opacity: Math.min(.9, .25 + R() * .55 + (1 - t) * .3).toFixed(2) }));
@@ -155,7 +156,7 @@
       let d = ''; pts.forEach((p, j) => { if (!j) return; let b = 0, bd = 1e9; for (let q = 0; q < j; q++) { const dd = Math.hypot(p[0] - pts[q][0], p[1] - pts[q][1]); if (dd < bd) { bd = dd; b = q; } } d += `M${pts[b][0].toFixed(1)} ${pts[b][1].toFixed(1)}L${p[0].toFixed(1)} ${p[1].toFixed(1)}`; });
       g.append(el('circle', { class: 'halo', cx: px, cy: py, r: rho * 2 + 10, fill: mine ? 'url(#halme)' : 'url(#hal)' }), el('path', { d, class: 'cline' }));
       list.forEach((s, j) => {
-        const [x, y] = pts[j]; pos[s.id] = [x, y]; const gidx = s.genre, col = GENRES[gidx][1], sr = (2 + s.level * .6) * sc;
+        const [x, y] = pts[j]; pos[s.id] = [x, y]; const gidx = s.genre, col = GENRES[gidx][1], sr = (1.5 + s.level * .42) * sc;
         const ns = el('g', { class: 'ns' + (s.id === sel ? ' sel' : ''), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, tabindex: 0, role: 'button', 'data-id': s.id,
           'aria-label': `${s.owner}의 ${GENRES[gidx][0]} 별, ${s.title}, 밝기 ${s.level}단계${s.mine ? ', 내 별' : ''}` });
         const body = starDot(s, sr, col, gidx, j); if (s.mine) body.append(el('circle', { class: 'me', r: sr + 3 }));
@@ -164,10 +165,34 @@
         g.append(ns);
       });
       const lab = el('text', { class: 'gxlab' + (mine ? ' me' : ''), x: px, y: py + rho * .85 + 16 * sc, 'text-anchor': 'middle' }); lab.textContent = mine ? `${nick} (나)` : nick;
-      g.append(lab); gCl.append(g);
+      g.append(lab);
+      const orb = el('g', { class: 'orb' }); orb.append(g); gCl.append(orb);     // 바깥 그룹만 움직여요 (등장 애니메이션과 겹치지 않게)
+      gal.orbs.push({ orb, arm, t: .12 + .88 * t, base: [px, py], stars: list.map((s, j) => ({ id: s.id, p0: pts[j] })) });
     });
-    drawLinks();
+    drawLinks(); spin(0);
   }
+
+  /* 은하 회전: 나선팔·먼지는 통째로, 학생 별자리는 궤도를 따라 이동 (글자와 별 모양은 바로 선 채로) */
+  let gal = null, theta = 0, hov = false;
+  function spin(dt) {
+    if (!gal) return; theta += dt;
+    const { cx0, cy0, ky, spiral, bg, orbs } = gal, c = Math.cos(theta), s = Math.sin(theta);
+    bg.setAttribute('transform', `matrix(${c.toFixed(5)} ${(ky * s).toFixed(5)} ${(-s / ky).toFixed(5)} ${c.toFixed(5)} ${(cx0 - c * cx0 + s / ky * cy0).toFixed(2)} ${(cy0 - ky * s * cx0 - c * cy0).toFixed(2)})`);
+    orbs.forEach(o => {
+      const [nx, ny] = spiral(o.arm, o.t, theta), dx = nx - o.base[0], dy = ny - o.base[1];
+      o.orb.setAttribute('transform', `translate(${dx.toFixed(2)} ${dy.toFixed(2)})`);
+      o.stars.forEach(st => { pos[st.id] = [st.p0[0] + dx, st.p0[1] + dy]; });
+    });
+    updateLinks();
+  }
+  neb.addEventListener('pointerover', e => { hov = !!(e.target.closest && e.target.closest('.ns')); });
+  neb.addEventListener('pointerleave', () => { hov = false; });
+  let lastT = performance.now();
+  (function spinLoop(now) {
+    const dt = Math.min(.25, (now - lastT) / 1000); lastT = now;
+    if (mode === 'galaxy' && !reduce && !sel && !hov && !document.hidden) spin(dt * .07);   // 약 90초에 한 바퀴
+    requestAnimationFrame(spinLoop);
+  })(lastT);
 
   function drawGenre() {
     const W = Math.max(280, glass.clientWidth), Hh = glass.clientHeight;
@@ -190,7 +215,7 @@
       list.forEach((s, i) => {
         const rr = c0 * Math.sqrt(i + .5), a = i * 2.39996 + gidx, x = cxp + Math.cos(a) * rr, y = cyp + Math.sin(a) * rr * .92;
         pos[s.id] = [x, y];
-        const sr = 3.6 + s.level * .9;
+        const sr = 2.7 + s.level * .62;
         const ns = el('g', { class: 'ns' + (s.id === sel ? ' sel' : '') + (first && !reduce ? ' pop' : ''), transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, tabindex: 0, role: 'button', 'data-id': s.id, style: `--sd:${(.5 + gidx * .09 + i * .03).toFixed(2)}s`,
           'aria-label': `${s.owner}의 ${name} 별, ${s.title}, 밝기 ${s.level}단계${s.mine ? ', 내 별' : ''}` });
         const body = starDot(s, sr, col, gidx, i);
@@ -222,14 +247,16 @@
     STARS.forEach(s => s.keys.forEach(k => { if (!m.has(k)) m.set(k, []); m.get(k).push(s); }));
     return [...m.values()].filter(a => new Set(a.map(s => s.owner)).size > 1);
   }
+  const linkD = (a, b) => { const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 - Math.hypot(a[0] - b[0], a[1] - b[1]) * .18; return `M${a[0].toFixed(1)} ${a[1].toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`; };
+  function updateLinks() { gLk.querySelectorAll('.lk').forEach(p => { const a = pos[p.dataset.a], b = pos[p.dataset.b]; if (a && b) p.setAttribute('d', linkD(a, b)); }); }
   function drawLinks() {
     gLk.replaceChildren(); linkCount = 0;
     groups().forEach(grp => {
       for (let i = 0; i < grp.length - 1; i++) {
         const a = pos[grp[i].id], b = pos[grp[i + 1].id]; if (!a || !b) continue;
         if (grp[i].owner === grp[i + 1].owner) continue;
-        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 - Math.hypot(a[0] - b[0], a[1] - b[1]) * .18, L = Math.hypot(a[0] - b[0], a[1] - b[1]) * 1.2 + 10;
-        const p = el('path', { d: `M${a[0]} ${a[1]} Q${mx} ${my} ${b[0]} ${b[1]}`, class: 'lk' + (first && !reduce ? ' draw' : ''), 'data-a': grp[i].id, 'data-b': grp[i + 1].id });
+        const L = Math.hypot(a[0] - b[0], a[1] - b[1]) * 1.2 + 10;
+        const p = el('path', { d: linkD(a, b), class: 'lk' + (first && !reduce ? ' draw' : ''), 'data-a': grp[i].id, 'data-b': grp[i + 1].id });
         if (first && !reduce) { p.style.setProperty('--l', L.toFixed(0)); p.addEventListener('animationend', () => p.classList.add('fin')); }
         gLk.append(p); linkCount++;
       }
